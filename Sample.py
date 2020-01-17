@@ -2,10 +2,13 @@ import sys
 from yahoo_finance_api2 import share
 from yahoo_finance_api2.exceptions import YahooFinanceError
 from datetime import datetime
-import plotly.plotly as py
+import chart_studio
+import chart_studio.plotly as py
 import plotly.graph_objs as go
 
-my_share = share.Share('MSFT')
+chart_studio.tools.set_credentials_file(username='alabiaa96', api_key='Ao41B0F8yGo00xzzxQqG')
+
+my_share = share.Share('ACB')
 symbol_data = None
 
 try:
