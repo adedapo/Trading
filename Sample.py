@@ -2,11 +2,8 @@ import sys
 from yahoo_finance_api2 import share
 from yahoo_finance_api2.exceptions import YahooFinanceError
 from datetime import datetime
-import chart_studio
-import chart_studio.plotly as py
+import plotly.io as pio
 import plotly.graph_objs as go
-
-chart_studio.tools.set_credentials_file(username='alabiaa96', api_key='Ao41B0F8yGo00xzzxQqG')
 
 my_share = share.Share('ACB')
 symbol_data = None
@@ -24,4 +21,5 @@ except YahooFinanceError as e:
 timestamp = [datetime.utcfromtimestamp(i/1000) for i in symbol_data['timestamp']]
 trace = go.Candlestick(x=timestamp, open=symbol_data['open'], high=symbol_data['high'], low=symbol_data['low'], close=symbol_data['close'])
 data = [trace]
-py.plot(data)
+grp = go.Figure(data)
+pio.write_html(grp, file='correlations.html', auto_open=True)

@@ -6,10 +6,6 @@ import plotly.graph_objs as go
 import plotly.io as pio
 import numpy as np
 
-from plotly.offline import download_plotlyjs, init_notebook_mode, iplot
-# chart_studio.tools.set_credentials_file(username='alabiaa96', api_key='Ao41B0F8yGo00xzzxQqG')
-
-
 data = pd.read_pickle('HistoricalMostPopular.pkl')
 df = data.rolling(180).corr()
 print(df.shape)

@@ -1,11 +1,7 @@
 from yahoo_finance_api2 import share
 from yahoo_finance_api2.exceptions import YahooFinanceError
 from datetime import datetime
-import chart_studio
-import chart_studio.plotly as py
-import plotly.graph_objs as go
 import pandas as pd
-from numpy import isnan, nan
 
 stock_list = pd.read_excel('MostPopular.xlsx')
 stock_list = stock_list[stock_list.Symbol.notna()].Symbol
@@ -33,6 +29,5 @@ for ticker in stock_list:
             all_data.drop(index=ticker)
         except:
             continue
-
 
 all_data.to_pickle("HistoricalMostPopular.pkl")

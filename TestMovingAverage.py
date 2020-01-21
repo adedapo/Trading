@@ -5,24 +5,23 @@ Results on the 100 Most Popular, and Top under $25 stocks on Robinhood indicate 
 from yahoo_finance_api2 import share
 from yahoo_finance_api2.exceptions import YahooFinanceError
 from datetime import datetime
-import chart_studio
-import chart_studio.plotly as py
 import plotly.graph_objs as go
 import pandas as pd
 from numpy import isnan, nan
+import plotly.io as pio
 
 stock_list = pd.read_excel('MostPopular.xlsx')
 stock_list = stock_list[stock_list.Symbol.notna()].Symbol
-chart_studio.tools.set_credentials_file(username='alabiaa96', api_key='Ao41B0F8yGo00xzzxQqG')
 
-for probed in ['EURUSD=X']:     # stock_list:
+
+for probed in ['BTC-USD']:     # stock_list:
     my_share = share.Share(probed)
     symbol_data = None
 
     try:
-        symbol_data = my_share.get_historical(share.PERIOD_TYPE_YEAR,
-                                              5,
-                                              share.FREQUENCY_TYPE_DAY,
+        symbol_data = my_share.get_historical(share.PERIOD_TYPE_WEEK,
+                                              1,
+                                              share.FREQUENCY_TYPE_MINUTE,
                                               1)
 
     except YahooFinanceError as e:
@@ -31,8 +30,8 @@ for probed in ['EURUSD=X']:     # stock_list:
         # sys.exit(1)
 
     timestamp = [datetime.utcfromtimestamp(i/1000) for i in symbol_data['timestamp']]
-    ma20 = pd.DataFrame(symbol_data['close']).rolling(window=20).mean()[0]
-    ma50 = pd.DataFrame(symbol_data['close']).rolling(window=50).mean()[0]
+    ma20 = pd.DataFrame(symbol_data['close']).ewm(span=12, adjust=True).mean()[0]     # rolling(window=20).mean()[0]
+    ma50 = pd.DataFrame(symbol_data['close']).ewm(span=26, adjust=True).mean()[0]    # rolling(window=50).mean()[0]
 
     prev_sig = nan
     # buy = [[], []]
@@ -42,6 +41,7 @@ for probed in ['EURUSD=X']:     # stock_list:
     pnl_time = []
     profit = []
     paid = 0
+    macd = ma20 - ma50
     for i in range(len(ma20)):
         if isnan(ma50[i]):
             continue
@@ -83,9 +83,12 @@ for probed in ['EURUSD=X']:     # stock_list:
         # low=symbol_data['low'], close=symbol_data['close'])
         trace1 = go.Scatter(x=timestamp, y=ma20, name='20 HMA', line_color='green')
         trace2 = go.Scatter(x=timestamp, y=ma50, name='50 HMA', line_color='red')
-        trace3 = go.Bar(x=pnl_time, y=profit, name='Profit on '+probed)
+        trace3 = go.Scatter(x=timestamp, y=macd, name='MACD')
+        # trace3 = go.Bar(x=pnl_time, y=profit, name='Profit on '+probed)
         data = [trace0, trace1, trace2, trace3]
-        py.plot(data)
+        grp = go.Figure(data)
+        pio.write_html(grp, file='correlations.html', auto_open=True)
+        # py.plot(data)
 
         print("Average profit on", probed, "is:", sum(profit)/len(profit), "\nAccuracy:", accuracy)
 
